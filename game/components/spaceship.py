@@ -26,6 +26,11 @@ class Spaceship(Sprite):
             self.move_up()
         elif user_input[pygame. K_DOWN]:
             self.move_down()
+        
+        if self.rect.left <= 0:
+            self.rect.right = SCREEN_WIDTH  
+        elif self.rect.right >= SCREEN_WIDTH:
+            self.rect.left = 0  
             
     def move_left(self):
         if self.rect.left > 0:
