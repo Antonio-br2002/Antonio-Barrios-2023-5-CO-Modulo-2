@@ -12,13 +12,15 @@ class Enemy(Sprite):
     X_POS_LIST = [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 1000]
     Y_POS = 20
     SPEED_X = 5
+    SPEED_X_ENEMY2 = 10
+    SPEED_y_ENEMY2 = 2
     SPEED_y = 1
     MOV_X = { 0: 'left', 1: 'right'}
     LIST_ENEMYS = [ENEMY_1, ENEMY_2] 
 
     def __init__(self):
+        self.choice_enemys = random.choice(self.LIST_ENEMYS)
         self.image = pygame.transform.scale(random.choice(self.LIST_ENEMYS), (self.ENEMY_WIDTH, self.ENEMY_HEIGHT))
-        self.list_enemys = random.choice(self.LIST_ENEMYS)
         self.rect = self.image.get_rect()
         self.rect.x = self.X_POS_LIST[random.randint(0, 10)]
         self.rect.y = self.Y_POS
@@ -28,17 +30,23 @@ class Enemy(Sprite):
         self.move_x_for = random.randint(30, 100)
         self.index = 0
         self.type = 'enemy'
-        self.shooting_time = random.randint(30, 50)
+        self.shooting_time = pygame.time.get_ticks() + random.randint(500, 1000)  # Momento de próximo disparo
         
-        if self.list_enemys == ENEMY_2:
-            self.speed_x += 5
-            self.speed_y  += 2
+        
+        if self.choice_enemys == ENEMY_2:
+            self.speed_x = self.SPEED_X_ENEMY2
+            self.speed_y = self.SPEED_y_ENEMY2
+            #self.chose_enemys = random.choice(self.LIST_ENEMYS)
+
+            
+        
+        
             
 
     def update(self, ships, game):
         self.rect.y += self.speed_y
         self.shoot(game.bullet_manager)
-
+        
         if self.movement_x == 'left':
             self.rect.x -= self.speed_x
             self.change_movement_x()
@@ -63,9 +71,10 @@ class Enemy(Sprite):
             self.movement_x = 'right'
             self.index = 0
             
-    def shoot(self, bullet_manger):
+    def shoot(self, bullet_manager):
         current_time = pygame.time.get_ticks()
         if self.shooting_time <= current_time:
             bullet = Bullet(self)
-            bullet_manger.add_bullet(bullet)
+            bullet.speed_y = bullet.SPEED  
+            bullet_manager.add_bullet(bullet)
             self.shooting_time += random.randint(30, 50)

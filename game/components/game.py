@@ -15,9 +15,10 @@ class Game:
         self.game_speed = 10
         self.x_pos_bg = 0
         self.y_pos_bg = 0
-        self.player = Spaceship()
+        #self.player = Spaceship()
         self.enemy_manager = EnemyManager()
         self.bullet_manager = BulletsManager()
+        self.player = Spaceship(DEFAULT_TYPE) 
 
     def run(self):
         # Game loop: events - update - draw
@@ -33,7 +34,7 @@ class Game:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.playing = False
-
+            
     def update(self):
         user_input = pygame.key.get_pressed()
         self.player.update(user_input)
