@@ -1,8 +1,8 @@
-from typing import Any
 import pygame
 from pygame.sprite import Sprite
-from game.components.bullets.bullets import Bullet
 from game.utils.constants import SPACESHIP, SCREEN_WIDTH, SCREEN_HEIGHT
+from game.components.bullets.bullets import Bullet
+
 
 class Spaceship(Sprite):
     SPACESHIP_WIDTH = 40
@@ -11,17 +11,14 @@ class Spaceship(Sprite):
     X_POS = (SCREEN_WIDTH // 2) - SPACESHIP_WIDTH
     Y_POS = 500
     
-    def __init__(self,spaceship_type):
-        super().__init__()
+    def __init__(self):
         self.image = pygame.transform.scale(SPACESHIP,(self.SPACESHIP_WIDTH, self.SPACESHIP_HEIGHT))
         self.rect = self.image.get_rect()
         self.rect.x = self.X_POS
         self.rect.y = self.Y_POS
-        self.type = spaceship_type
-        self.shoot_delay = 0.5    
-        self.last_shot_time = 0
+        self.type = 'player'
              
-    def update(self, user_input):
+    def update(self, user_input, game):
         if user_input[pygame. K_LEFT]:
             self.move_left()
         elif user_input[pygame. K_RIGHT]:
@@ -30,14 +27,8 @@ class Spaceship(Sprite):
             self.move_up()
         elif user_input[pygame. K_DOWN]:
             self.move_down()
-        elif user_input[pygame. K_SPACE]:
-            self.shoot()
-        
-        current_time = pygame.time.get_ticks()
-        if user_input[pygame.K_SPACE] and current_time - self.last_shot_time > self.shoot_delay * 1000:
-            self.shoot(self.bullet_manager)
-            self.last_shot_time = current_time
-        
+        if user_input[pygame. K_SPACE]:
+            self.shoot(game)
             
     def move_left(self):
         self.rect.x -= 10
@@ -57,10 +48,10 @@ class Spaceship(Sprite):
         if self.rect.y < SCREEN_HEIGHT - self.SPACESHIP_HEIGHT:
             self.rect.y += 10
             
-    def shoot(self, bullet_manager):
-            bullet = Bullet(self)
-            bullet.speed_y = -10  # Velocidad vertical hacia arriba
-            bullet_manager.add_bullet(bullet)
+    def shoot(self, game):
+        bullet = Bullet(self)
+        game.bullet_manager.add_bullet(bullet)
+
     
     def draw(self, screen):
         screen.blit(self.image, (self.rect.x, self.rect.y))
