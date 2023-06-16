@@ -16,7 +16,7 @@ class Enemy(Sprite):
     SPEED_y_ENEMY2 = 2
     SPEED_y = 1
     MOV_X = { 0: 'left', 1: 'right'}
-    LIST_ENEMYS = [ENEMY_1, ENEMY_2] 
+    LIST_ENEMYS = [ENEMY_1,ENEMY_2]
 
     def __init__(self):
         self.choice_enemys = random.choice(self.LIST_ENEMYS)
@@ -36,12 +36,7 @@ class Enemy(Sprite):
         if self.choice_enemys == ENEMY_2:
             self.speed_x = self.SPEED_X_ENEMY2
             self.speed_y = self.SPEED_y_ENEMY2
-            #self.chose_enemys = random.choice(self.LIST_ENEMYS)
-
-            
-        
-        
-            
+            self.chose_enemys = random.choice(self.LIST_ENEMYS)
 
     def update(self, ships, game):
         self.rect.y += self.speed_y

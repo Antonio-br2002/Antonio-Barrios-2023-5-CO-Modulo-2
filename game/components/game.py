@@ -1,12 +1,15 @@
 import pygame
 
-from game.utils.constants import BG, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS, DEFAULT_TYPE, FONT_STYLE
+from game.utils.constants import BG, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS, DEFAULT_TYPE
 from game.components.spaceship import Spaceship
 from game.components.enemies.enemy_manager import EnemyManager
 from game.components.bullets.bullets_manager import BulletsManager
 from game.components.menu import Menu
+from game.components.statistics import Statistics
 
 class Game:
+    HALF_SCREEN_WIDTH = SCREEN_WIDTH // 2
+    HALF_SCREEN_HEIGHT = SCREEN_HEIGHT // 2
     def __init__(self):
         pygame.init()
         pygame.display.set_caption(TITLE)
@@ -22,8 +25,7 @@ class Game:
         self.bullet_manager = BulletsManager()
         self.menu = Menu('press Any key to start...', self.screen)
         self.running = False
-        self.death_count = 0
-        self.score = 0
+        self.statistics = Statistics()
     
     def execute(self):
         self.running = True
@@ -35,12 +37,13 @@ class Game:
 
     def run(self):
         # Game loop: events - update - draw
-        self.score = 0
+        self.statistics.score = 0
         self.playing = True
         while self.playing:
             self.events()
             self.update()
             self.draw()
+            self.statistics.score_level()
         
 
     def events(self):
@@ -52,7 +55,7 @@ class Game:
         user_input = pygame.key.get_pressed()
         self.player.update(user_input, self)
         self.enemy_manager.update(self)
-        self.bullet_manager.update(self)
+        self.bullet_manager.update(self, self.statistics)
         #self.menu.update()
 
     def draw(self):
@@ -62,7 +65,7 @@ class Game:
         self.player.draw(self.screen)
         self.enemy_manager.draw(self.screen)
         self.bullet_manager.draw(self.screen)
-        self.draw_score()
+        self.statistics.draw(self.screen)
         pygame.display.update()
         #pygame.display.flip()
 
@@ -79,10 +82,13 @@ class Game:
     def show_menu(self):
         self.menu.reset(self.screen)
         
-        if self.death_count > 0:
-            self.menu.update_message('new message')
-        
+        if self.statistics.death_count > 0:
+            self.menu.update_message('GAME OVER, Press Any key to Restart')
+            self.statistics.draw2(self.screen)
+            
+            
         self.menu.draw(self.screen)
+        
         
         half_screen_width = SCREEN_WIDTH // 2
         half_screen_height = SCREEN_HEIGHT // 2
@@ -91,13 +97,3 @@ class Game:
         self.screen.blit(icon, (half_screen_width - 50, half_screen_height -150))
         
         self.menu.update(self)
-    
-    def update_score(self):
-        self.score += 1
-    
-    def draw_score(self):
-        font = pygame.font.Font(FONT_STYLE, 30)
-        text = font.render(f'score: {self.score}', True, (255, 255, 255))
-        text_rect = text.get_rect()
-        text_rect.center = (1000, 50)
-        self.screen.blit(text, text_rect)
