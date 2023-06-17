@@ -1,6 +1,6 @@
 import pygame
 from pygame.sprite import Sprite
-from game.utils.constants import SPACESHIP, SCREEN_WIDTH, SCREEN_HEIGHT
+from game.utils.constants import SPACESHIP, SCREEN_WIDTH, SCREEN_HEIGHT, DEFAULT_TYPE
 from game.components.bullets.bullets import Bullet
 
 
@@ -17,6 +17,9 @@ class Spaceship(Sprite):
         self.rect.x = self.X_POS
         self.rect.y = self.Y_POS
         self.type = 'player'
+        self.power_up_type = DEFAULT_TYPE
+        self.has_power_up = False
+        self.has_power_up = 0
              
     def update(self, user_input, game):
         if user_input[pygame. K_LEFT]:
@@ -32,13 +35,13 @@ class Spaceship(Sprite):
             
     def move_left(self):
         self.rect.x -= 10
-        if self.rect.left <= 0:
-            self.rect.right = SCREEN_WIDTH 
+        if self.rect.left < 0:
+            self.rect.x = SCREEN_WIDTH - self.SPACESHIP_WIDTH
         
     def move_right(self):
         self.rect.x += 10
-        if self.rect.right >= SCREEN_WIDTH:
-            self.rect.left = 0
+        if self.rect.right >= SCREEN_WIDTH - self.SPACESHIP_WIDTH:
+            self.rect.x = 0
         
     def move_up(self):
         if self.rect.y > self.HALF_SCREEN_HEIGHT:
@@ -47,11 +50,21 @@ class Spaceship(Sprite):
     def move_down(self):
         if self.rect.y < SCREEN_HEIGHT - self.SPACESHIP_HEIGHT:
             self.rect.y += 10
-            
-    def shoot(self, game):
-        bullet = Bullet(self)
-        game.bullet_manager.add_bullet(bullet)
-
     
     def draw(self, screen):
         screen.blit(self.image, (self.rect.x, self.rect.y))
+        
+    def shoot(self, game):
+        bullet = Bullet(self)
+        game.bullet_manager.add_bullet(bullet)
+        
+    def reset(self):
+        self.rect.x = self.X_POS
+        self.rect.y = self.Y_POS
+        self.set_image()
+        self.power_time_up = 0
+        self.power_up_type = DEFAULT_TYPE
+        self.has_power_up = False
+    
+    def set_image(self, size = (40, 60), image = SPACESHIP ):
+        self.image = pygame.transform.scale(image, size)
