@@ -20,8 +20,9 @@ class Spaceship(Sprite):
         self.power_up_type = DEFAULT_TYPE
         self.has_power_up = False
         self.has_power_up = 0
-             
+        
     def update(self, user_input, game):
+        
         if user_input[pygame. K_LEFT]:
             self.move_left()
         elif user_input[pygame. K_RIGHT]:
@@ -57,6 +58,7 @@ class Spaceship(Sprite):
     def shoot(self, game):
         bullet = Bullet(self)
         game.bullet_manager.add_bullet(bullet)
+        game.bullet_manager.disparo_sound.play()
         
     def reset(self):
         self.rect.x = self.X_POS

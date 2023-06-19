@@ -30,7 +30,8 @@ class Enemy(Sprite):
         self.move_x_for = random.randint(30, 100)
         self.index = 0
         self.type = 'enemy'
-        self.shooting_time = pygame.time.get_ticks() + random.randint(500, 1000)  # Momento de próximo disparo
+        self.shooting_time = pygame.time.get_ticks() + random.randint(500, 1000)
+        self.can_shoot = True
         
         
         if self.choice_enemys == ENEMY_2:
@@ -68,8 +69,7 @@ class Enemy(Sprite):
             
     def shoot(self, bullet_manager):
         current_time = pygame.time.get_ticks()
-        if self.shooting_time <= current_time:
+        if current_time >= self.shooting_time and self.can_shoot:
             bullet = Bullet(self)
-            bullet.speed_y = bullet.SPEED  
             bullet_manager.add_bullet(bullet)
-            self.shooting_time += random.randint(30, 50)
+            self.shooting_time = current_time + random.randint(500, 1000)

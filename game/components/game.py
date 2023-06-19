@@ -1,6 +1,6 @@
 import pygame
 
-from game.utils.constants import BG, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS, DEFAULT_TYPE, FONT_STYLE
+from game.utils.constants import BG, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS, DEFAULT_TYPE, FONT_STYLE, INICIO, GAME_OVER, BACKGROUND_MUSIC_PATH, GAME_OVER_MUSIC, POWER_UP_MUSIC
 from game.components.spaceship import Spaceship
 from game.components.enemies.enemy_manager import EnemyManager
 from game.components.bullets.bullets_manager import BulletManager 
@@ -9,6 +9,8 @@ from game.components.statistics import Statistics
 from game.components.power_ups.power_ups_manager import PowerUpManager
 
 class Game:
+    START = pygame.transform.scale(INICIO, (SCREEN_WIDTH, SCREEN_HEIGHT))
+    GAME_OVER = pygame.transform.scale(GAME_OVER, (SCREEN_WIDTH, SCREEN_HEIGHT))
     def __init__(self):
         pygame.init()
         pygame.display.set_caption(TITLE)
@@ -17,6 +19,7 @@ class Game:
         self.clock = pygame.time.Clock()
         self.playing = False
         self.game_speed = 10
+        self.speed_power_up = 50
         self.x_pos_bg = 0
         self.y_pos_bg = 0
         self.player = Spaceship()
@@ -28,6 +31,10 @@ class Game:
         self.death_count = Statistics()
         self.highest_score = Statistics()
         self.power_up_manager = PowerUpManager()
+        self.background_music = (BACKGROUND_MUSIC_PATH)
+        self.game_over_sound = pygame.mixer.Sound(GAME_OVER_MUSIC)
+        self.power_up_sound = pygame.mixer.Sound(POWER_UP_MUSIC)
+
     
     def execute(self):
         self.running = True
@@ -89,16 +96,20 @@ class Game:
         half_screen_height = SCREEN_HEIGHT // 2
         
         if self.death_count.count == 0:
+            pygame.mixer.music.load(BACKGROUND_MUSIC_PATH)
+            pygame.mixer.music.play(-1)
+            self.screen.blit(self.START,(0,0))
             self.menu.draw(self.screen, 'Press any key to start ...')
         else:
             self.update_highest_score()
-            self.menu.draw(self.screen, 'Game over. Press any key to restart')
-            self.menu.draw(self.screen, f'Your score: {self.score.count}', half_screen_width, 350, )
-            self.menu.draw(self.screen, f'Highest score: {self.highest_score.count}', half_screen_width, 400, )
-            self.menu.draw(self.screen, f'Total deaths: {self.death_count.count}', half_screen_width, 450, )
-        
-        icon = pygame.transform.scale(ICON, (80, 120))
-        self.screen.blit(icon, (half_screen_width - 50, half_screen_height - 150))
+            pygame.mixer.Sound.play(self.game_over_sound)
+            self.game_over_sound_played = True
+            self.screen.blit(self.GAME_OVER, (0, 0))
+            self.menu.draw(self.screen, 'Press any key to restart', half_screen_width, 350)
+            self.menu.draw(self.screen, f'Your score: {self.score.count}', half_screen_width, 400)
+            self.menu.draw(self.screen, f'Highest score: {self.highest_score.count}', half_screen_width, 450)
+            self.menu.draw(self.screen, f'Total deaths: {self.death_count.count}', half_screen_width, 500)
+
         
         self.menu.update(self)
         
@@ -118,7 +129,7 @@ class Game:
             time_to_show = round((self.player.power_time_up - pygame.time.get_ticks())/1000,2)
             
             if time_to_show >= 0:
-                self.menu.draw(self.screen, f'{self.player.power_up_type.capitalize()} is enabled for {time_to_show}',540, 50,(255,255,255))
+                self.menu.draw(self.screen, f'{str(self.player.power_up_type).capitalize()} is enabled for {time_to_show}', 540, 50, (255, 255, 255))
             else:
                 self.player.has_power_up = False
                 self.player.power_up_type = DEFAULT_TYPE
